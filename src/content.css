@@ -111,3 +111,32 @@
     transform: translateY(0);
   }
 }
+
+.backlog-issue-not-found {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  animation: slideDown 0.3s ease-out;
+}
+
+.backlog-issue-not-found::before {
+  content: "⚠️";
+  margin-right: 6px;
+  font-size: 14px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .backlog-issue-not-found {
+    background: #664d03;
+    color: #ffecb5;
+    border-color: #997404;
+  }
+}

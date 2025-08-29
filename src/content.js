@@ -7,7 +7,9 @@
   'use strict';
 
   let currentButtons = [];
+  let currentMessage = null;
   let debounceTimer = null;
+  let checkTimer = null;
 
   /**
    * 課題番号形式かどうかを判定
@@ -91,32 +93,68 @@
   }
 
   /**
-   * 既存のボタンを削除
+   * 既存のボタンとメッセージを削除
    */
-  function removeExistingButtons() {
+  function removeExistingElements() {
     currentButtons.forEach(button => {
       if (button && button.parentNode) {
         button.parentNode.removeChild(button);
       }
     });
     currentButtons = [];
+    
+    if (currentMessage && currentMessage.parentNode) {
+      currentMessage.parentNode.removeChild(currentMessage);
+      currentMessage = null;
+    }
   }
 
+  /**
+   * 課題が存在するか確認
+   * @param {string} issueNumber - 課題番号
+   * @returns {Promise<boolean>} 課題が存在するtrue
+   */
+  async function checkIssueExists(issueNumber) {
+    const url = generateIssueUrl(issueNumber);
+    
+    try {
+      const response = await fetch(url, {
+        method: 'HEAD',
+        mode: 'same-origin',
+        credentials: 'include'
+      });
+      
+      // 200番台のステータスコードなら存在する
+      return response.ok;
+    } catch (error) {
+      // エラーが発生した場合は存在しないとみなす
+      return false;
+    }
+  }
+  
+  /**
+   * 「課題が存在しません」メッセージを作成
+   * @param {string} issueNumber - 課題番号
+   * @returns {HTMLElement} メッセージ要素
+   */
+  function createNotFoundMessage(issueNumber) {
+    const message = document.createElement('div');
+    message.className = 'backlog-issue-not-found';
+    message.textContent = `課題 #${issueNumber} は存在しません`;
+    return message;
+  }
+  
   /**
    * 検索ボックスにボタンを追加（左側に配置）
    * @param {HTMLElement} searchBox - 検索ボックス要素
    * @param {string} issueNumber - 課題番号
    */
-  function addButtonsToSearchBox(searchBox, issueNumber) {
-    removeExistingButtons();
-    
-    // 2つのボタンを作成（同タブ、別タブ）
-    const sameTabButton = createIssueButton(issueNumber, false);
-    const newTabButton = createIssueButton(issueNumber, true);
+  async function addElementsToSearchBox(searchBox, issueNumber) {
+    removeExistingElements();
     
     const container = searchBox.parentElement;
     
-    // 検索ボックスの左側にボタンコンテナを配置
+    // 検索ボックスの左側にコンテナを配置
     let buttonContainer = container.querySelector('.backlog-issue-button-container');
     if (!buttonContainer) {
       buttonContainer = document.createElement('div');
@@ -131,14 +169,27 @@
       container.style.gap = '8px';
     }
     
-    // ボタンをグループ化して追加
-    const buttonGroup = document.createElement('div');
-    buttonGroup.className = 'backlog-button-group';
-    buttonGroup.appendChild(sameTabButton);
-    buttonGroup.appendChild(newTabButton);
+    // 課題の存在を確認
+    const issueExists = await checkIssueExists(issueNumber);
     
-    buttonContainer.appendChild(buttonGroup);
-    currentButtons = [sameTabButton, newTabButton];
+    if (issueExists) {
+      // 課題が存在する場合はボタンを表示
+      const sameTabButton = createIssueButton(issueNumber, false);
+      const newTabButton = createIssueButton(issueNumber, true);
+      
+      const buttonGroup = document.createElement('div');
+      buttonGroup.className = 'backlog-button-group';
+      buttonGroup.appendChild(sameTabButton);
+      buttonGroup.appendChild(newTabButton);
+      
+      buttonContainer.appendChild(buttonGroup);
+      currentButtons = [sameTabButton, newTabButton];
+    } else {
+      // 課題が存在しない場合はメッセージを表示
+      const message = createNotFoundMessage(issueNumber);
+      buttonContainer.appendChild(message);
+      currentMessage = message;
+    }
   }
 
   /**
@@ -147,14 +198,18 @@
    */
   function handleSearchInput(searchBox) {
     clearTimeout(debounceTimer);
+    clearTimeout(checkTimer);
     
     debounceTimer = setTimeout(() => {
       const value = searchBox.value || searchBox.textContent || '';
       
       if (isIssueNumber(value)) {
-        addButtonsToSearchBox(searchBox, value.trim());
+        // 課題番号の入力が完了してから少し待って存在確認
+        checkTimer = setTimeout(() => {
+          addElementsToSearchBox(searchBox, value.trim());
+        }, 500);
       } else {
-        removeExistingButtons();
+        removeExistingElements();
       }
     }, 300);
   }

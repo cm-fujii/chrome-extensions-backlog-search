@@ -6,16 +6,22 @@
 (function() {
   'use strict';
 
-  let currentButton = null;
+  let currentButtons = [];
   let debounceTimer = null;
 
   /**
    * 課題番号形式かどうかを判定
    * @param {string} text - 入力テキスト
-   * @returns {boolean} 課題番号形式の場合true
+   * @returns {boolean} 課題番号形式の場合true（0は除外）
    */
   function isIssueNumber(text) {
-    return /^\d+$/.test(text.trim());
+    const trimmed = text.trim();
+    if (!/^\d+$/.test(trimmed)) {
+      return false;
+    }
+    // 0の場合は課題番号として扱わない
+    const number = parseInt(trimmed, 10);
+    return number > 0;
   }
 
   /**
@@ -60,18 +66,25 @@
   /**
    * 「課題を開く」ボタンを作成
    * @param {string} issueNumber - 課題番号
+   * @param {boolean} newTab - 新しいタブで開くかどうか
    * @returns {HTMLElement} ボタン要素
    */
-  function createIssueButton(issueNumber) {
+  function createIssueButton(issueNumber, newTab = false) {
     const button = document.createElement('button');
-    button.className = 'backlog-issue-quick-access-btn';
-    button.textContent = `課題 #${issueNumber} を開く`;
+    button.className = newTab ? 'backlog-issue-quick-access-btn backlog-new-tab' : 'backlog-issue-quick-access-btn';
+    button.textContent = newTab ? `#${issueNumber} を別タブで開く` : `#${issueNumber} を開く`;
+    button.title = newTab ? `課題 #${issueNumber} を新しいタブで開く` : `課題 #${issueNumber} を現在のタブで開く`;
     
     button.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
       const url = generateIssueUrl(issueNumber);
-      window.location.href = url;
+      
+      if (newTab) {
+        window.open(url, '_blank');
+      } else {
+        window.location.href = url;
+      }
     });
     
     return button;
@@ -80,11 +93,13 @@
   /**
    * 既存のボタンを削除
    */
-  function removeExistingButton() {
-    if (currentButton && currentButton.parentNode) {
-      currentButton.parentNode.removeChild(currentButton);
-      currentButton = null;
-    }
+  function removeExistingButtons() {
+    currentButtons.forEach(button => {
+      if (button && button.parentNode) {
+        button.parentNode.removeChild(button);
+      }
+    });
+    currentButtons = [];
   }
 
   /**
@@ -92,13 +107,16 @@
    * @param {HTMLElement} searchBox - 検索ボックス要素
    * @param {string} issueNumber - 課題番号
    */
-  function addButtonToSearchBox(searchBox, issueNumber) {
-    removeExistingButton();
+  function addButtonsToSearchBox(searchBox, issueNumber) {
+    removeExistingButtons();
     
-    const button = createIssueButton(issueNumber);
+    // 2つのボタンを作成（同タブ、別タブ）
+    const sameTabButton = createIssueButton(issueNumber, false);
+    const newTabButton = createIssueButton(issueNumber, true);
+    
     const container = searchBox.parentElement;
     
-    // 検索ボックスの左側にボタンを配置
+    // 検索ボックスの左側にボタンコンテナを配置
     let buttonContainer = container.querySelector('.backlog-issue-button-container');
     if (!buttonContainer) {
       buttonContainer = document.createElement('div');
@@ -113,8 +131,14 @@
       container.style.gap = '8px';
     }
     
-    buttonContainer.appendChild(button);
-    currentButton = button;
+    // ボタンをグループ化して追加
+    const buttonGroup = document.createElement('div');
+    buttonGroup.className = 'backlog-button-group';
+    buttonGroup.appendChild(sameTabButton);
+    buttonGroup.appendChild(newTabButton);
+    
+    buttonContainer.appendChild(buttonGroup);
+    currentButtons = [sameTabButton, newTabButton];
   }
 
   /**
@@ -128,9 +152,9 @@
       const value = searchBox.value || searchBox.textContent || '';
       
       if (isIssueNumber(value)) {
-        addButtonToSearchBox(searchBox, value.trim());
+        addButtonsToSearchBox(searchBox, value.trim());
       } else {
-        removeExistingButton();
+        removeExistingButtons();
       }
     }, 300);
   }

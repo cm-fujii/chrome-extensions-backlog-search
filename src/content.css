@@ -8,16 +8,22 @@
   margin-right: 8px;
 }
 
+.backlog-button-group {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
 .backlog-issue-quick-access-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 6px 14px;
+  padding: 5px 10px;
   background: linear-gradient(135deg, #42b983 0%, #2f9768 100%);
   color: white;
   border: none;
   border-radius: 4px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -26,10 +32,18 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 }
 
+.backlog-issue-quick-access-btn.backlog-new-tab {
+  background: linear-gradient(135deg, #5a9fd4 0%, #4a8fc4 100%);
+}
+
 .backlog-issue-quick-access-btn:hover {
   background: linear-gradient(135deg, #2f9768 0%, #247755 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.backlog-issue-quick-access-btn.backlog-new-tab:hover {
+  background: linear-gradient(135deg, #4a8fc4 0%, #3a7fb4 100%);
 }
 
 .backlog-issue-quick-access-btn:active {
@@ -42,16 +56,26 @@
   outline-offset: 2px;
 }
 
-.backlog-issue-quick-access-btn::before {
-  content: "🎯";
-  margin-right: 6px;
-  font-size: 14px;
+.backlog-issue-quick-access-btn:not(.backlog-new-tab)::before {
+  content: "🔗";
+  margin-right: 4px;
+  font-size: 12px;
+}
+
+.backlog-issue-quick-access-btn.backlog-new-tab::before {
+  content: "🌐";
+  margin-right: 4px;
+  font-size: 12px;
 }
 
 @media (max-width: 768px) {
   .backlog-issue-quick-access-btn {
-    font-size: 12px;
-    padding: 5px 12px;
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+  
+  .backlog-button-group {
+    gap: 2px;
   }
 }
 
@@ -62,6 +86,14 @@
   
   .backlog-issue-quick-access-btn:hover {
     background: linear-gradient(135deg, #42a373 0%, #359660 100%);
+  }
+  
+  .backlog-issue-quick-access-btn.backlog-new-tab {
+    background: linear-gradient(135deg, #6aafdf 0%, #5a9fcf 100%);
+  }
+  
+  .backlog-issue-quick-access-btn.backlog-new-tab:hover {
+    background: linear-gradient(135deg, #5a9fcf 0%, #4a8fbf 100%);
   }
 }
 

@@ -22,8 +22,10 @@
     }
   ],
   "permissions": [
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
+  "options_page": "options.html",
   "host_permissions": [
     "https://*.backlog.com/*",
     "https://*.backlog.jp/*"

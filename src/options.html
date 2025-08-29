@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backlog Search - オプション</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    h1 {
+      color: #42b983;
+      font-size: 24px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    h1::before {
+      content: "⚙️";
+      font-size: 28px;
+    }
+    
+    .description {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 30px;
+    }
+    
+    .option-group {
+      margin-bottom: 20px;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 6px;
+      border: 1px solid #e0e0e0;
+    }
+    
+    .option-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .option-label {
+      font-size: 15px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .option-description {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 26px;
+    }
+    
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 26px;
+    }
+    
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    
+    input:checked + .slider {
+      background-color: #42b983;
+    }
+    
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+    
+    .save-status {
+      margin-top: 20px;
+      padding: 10px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 4px;
+      font-size: 13px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .save-status.show {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Backlog Search オプション</h1>
+    <p class="description">
+      拡張機能の動作をカスタマイズできます。
+    </p>
+    
+    <div class="option-group">
+      <div class="option-item">
+        <div>
+          <div class="option-label">課題の存在を確認をする</div>
+          <div class="option-description">
+            有効にすると、課題番号を入力した際に実際に課題が存在するか確認します。<br>
+            存在しない場合はメッセージを表示します。
+          </div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="checkIssueExists">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="save-status" id="saveStatus">
+      ✅ 設定を保存しました
+    </div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>

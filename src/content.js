@@ -169,11 +169,19 @@
       container.style.gap = '8px';
     }
     
-    // 課題の存在を確認
-    const issueExists = await checkIssueExists(issueNumber);
+    // オプション設定を取得
+    const settings = await chrome.storage.sync.get(['checkIssueExists']);
+    const shouldCheckExists = settings.checkIssueExists !== false; // デフォルトはON
+    
+    let issueExists = true;
+    
+    // オプションが有効な場合のみ存在確認を実行
+    if (shouldCheckExists) {
+      issueExists = await checkIssueExists(issueNumber);
+    }
     
     if (issueExists) {
-      // 課題が存在する場合はボタンを表示
+      // 課題が存在する場合（またはチェックしない場合）はボタンを表示
       const sameTabButton = createIssueButton(issueNumber, false);
       const newTabButton = createIssueButton(issueNumber, true);
       
